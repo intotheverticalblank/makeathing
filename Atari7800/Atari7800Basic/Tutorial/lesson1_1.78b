@@ -1,0 +1,9 @@
+
+
+ BACKGRND=$60
+
+_gameLoop
+ clearscreen
+ drawscreen
+
+ goto _gameLoop

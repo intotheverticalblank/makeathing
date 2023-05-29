@@ -1,0 +1,19 @@
+ set zoneheight 16
+ displaymode 160A
+ set plotvalueonscreen on
+ set romsize 32k
+
+ BACKGRND=$00
+
+ dim bgColor  = var1
+ dim wait = var2
+
+ bgColor = 0
+ wait = 0
+
+_gameLoop
+ clearscreen
+
+ drawscreen
+
+ goto _gameLoop

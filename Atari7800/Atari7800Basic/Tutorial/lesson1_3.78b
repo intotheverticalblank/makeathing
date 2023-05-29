@@ -1,0 +1,35 @@
+ set zoneheight 16
+ displaymode 160A
+ set plotvalueonscreen on
+ set romsize 32k
+
+ incgraphic font.png 160A 
+ characterset font
+ alphachars '0123456789abcdefghijklmnopqrstuvwxyz>`?!/.,-_()[]&AB '
+
+ rem pallette 0 text
+  P0C1=$0F
+  P0C2=$0C
+  P0C3=$0A
+
+
+ BACKGRND=$00
+
+ dim bgColor  = var1
+ dim wait = var2
+
+ bgColor = 0
+ wait = 0
+
+_gameLoop
+ clearscreen
+ wait = wait + 1
+ if wait > 10 then wait = 0 : bgColor = bgColor + 1
+ if bgColor > 127 then bgColor = 0
+ BACKGRND = bgColor
+
+ plotchars 'hello world' 0 58 5
+
+ drawscreen
+
+ goto _gameLoop
