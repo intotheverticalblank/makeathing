@@ -1,4 +1,7 @@
-
+ set zoneheight 16
+ displaymode 160A
+ set plotvalueonscreen on
+ set romsize 32k
 
  BACKGRND=$60
 
