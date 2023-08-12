@@ -1,0 +1,98 @@
+rem *** STOS: The Game Creator
+rem ***
+rem *** Visual Studio Code Lanugage Extension
+rem *** Written by Neil Halliday
+rem ***
+rem ***
+rem *** Rendertest4 : main program file 
+
+//Move and animate formation across real screen
+//no key presses needed
+
+key(2)="default"
+key(3)="fload"+chr$(34)+"*.asc"+chr$(34)
+
+rem *** Error Handling ***
+on error goto @errortrap
+messages$="Messages: "
+
+curs off:flash off:key off:hide:mode 0
+
+reserve as screen 10: rem  needed for screen copy versions
+
+load "GRSPR.mbk",1
+XP=hunt(start(1) to start(1)+length(1),"PALT")
+XP=XP+4 : for I=0 to 15 : colour I,deek(I*2+XP) : next I
+
+rem ******************** version 4 ********************
+rem 16px offset movement
+rem 1. Copy 9 sprites to screen at 16px offset
+rem turn autoback off
+rem do 16 px offset version
+//update off
+//move off
+
+rem *** copy formation to screen 10 
+rem *** at 16px offset
+
+for sctr=0 to 8 
+  sprite sctr+1,sctr*16,0,7
+next  
+
+pen 2:locate 1,22: print "press a key"
+wait key
+screen copy physic,0,0,160,30 to 10,16,0
+sprite off:rem turns off all sprites
+rem do not need a separte sprite background. 
+rem this adds speed
+auto back off
+xoff=0
+ctr=0
+dx=2
+x1=0
+y1=0
+x2=320 
+y2=30
+xend=160: rem 320 - (144+16)  The screem width minus the formation length + offset
+
+cls
+logic=back
+
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+
+repeat
+
+rem the x1 and x2 in cls have to be 0 or 16 multiples
+cls logic 
+//cls logic,0,0,0 to 320,30
+xoff=x1 MOD 16
+//screen copy 10,16-xoff,y1,x1+160,y2 to logic,x1,0
+screen copy 10,16-xoff,y1,xoff+160,y2 to logic,x1,0
+x1=x1+dx
+if x1=0 then dx=2
+if x1=xend then dx=-2
+
+rem FPS
+inc fctr: rem inc the frame counter
+
+if timer >=50  then inc se:timer=0
+if se>5 then fps=fctr/se: t$=str$(fps)+ "FPS" + chr$(0):rem fps=number of frames / number of seconds = fps.  
+locate 30, 1:print t$
+
+screen swap:wait vbl
+until fctr=300
+
+messages$=messages$+" :made it out of render loop"
+cls 
+pen 2:locate 1,19: print "fps";t$
+locate 1,20: print "press a key"
+wait key
+
+@errortrap
+default
+print "output: ";messages$
+print "error number";ERRN 
+print "line number";ERRL

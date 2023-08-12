@@ -1,0 +1,118 @@
+rem *** STOS: The Game Creator
+rem ***
+rem *** Visual Studio Code Lanugage Extension
+rem *** Written by Neil Halliday
+rem ***
+rem ***
+rem *** render5.stos
+
+rem ******************** version 5 ********************
+rem copy sprite 4 to an array of strimgs at 0 to 15
+rem 1. Copy 9 versions of it to the screen and use the one needed to display
+rem turn autoback off
+rem turn synco off
+rem do 16 px offset version
+
+key(2)="default"
+key(3)="fload"+chr$(34)+"*.asc"+chr$(34)
+
+rem *** Error Handling ***
+on error goto @errortrap
+messages$="Messages: "
+
+curs off
+flash off:key off:hide:mode 0
+
+reserve as screen 10: rem  needed for screen copy versions
+
+load "GRSPR.mbk",1
+XP=hunt(start(1) to start(1)+length(1),"PALT")
+XP=XP+4 : for I=0 to 15 : colour I,deek(I*2+XP) : next I
+
+
+//update off
+//move off
+
+rem *** copy formation to screen 10 
+rem *** at 16px offset
+
+rem version  
+rem array of formations at 16
+
+rem version  
+rem array of individual images 
+rem basically our own pre-roll
+
+
+dim fm$(16):rem store the screen parts as an array
+locate 1,13: print "Creating pre-shifted sprites" 
+
+for x=0 to 15 
+  cls
+  sprite 1,x,0,7
+  put sprite 1 :wait VBL:sprite off
+  fm$(x)=screen$(logic,0,0 to 32,32) 
+  locate 1,14: print "  " 
+  locate 1,15: print "x ";x
+next x
+
+locate 1,15: print "Press a Key"
+wait key
+
+
+rem do not need a separte sprite background. 
+rem this adds speed
+auto back off
+cls
+logic=back
+
+xoff=0
+ctr=0
+dx=2
+x1=0
+y1=0
+xend=160: rem 320 - (144+16)  The screem width minus the formation length + offset
+
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+
+repeat
+
+rem the x1 and x2 in cls have to be 0 or 16 multiples
+//x1c=0
+//x2c=320
+//cls logic,0,x1c,0 to x2c,32
+cls logic 
+
+//loop through each of 9 columns
+for ctr=0 to 8
+x=(ctr*16)+x1
+xoff=x MOD 16 : rem which array value to show
+screen$(logic,x,0)=fm$(xoff)
+next ctr
+
+//end loop
+
+x1=x1+dx
+if x1=0 then dx=2
+if x1=xend then dx=-2
+
+rem FPS
+inc fctr: rem inc the frame counter
+
+if timer >=50  then inc se:timer=0
+if se>5 then fps=fctr/se: t$=str$(fps)+ "FPS" + chr$(0):rem fps=number of frames / number of seconds = fps.  
+locate 30, 1:print t$
+
+screen swap:wait vbl
+until fctr=200
+
+locate 1,22: print "press a key"
+wait key
+@errortrap
+default
+print "output: ";messages$
+print "error number";ERRN 
+print "line number";ERRL
