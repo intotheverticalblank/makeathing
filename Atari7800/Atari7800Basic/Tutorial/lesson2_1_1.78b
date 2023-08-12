@@ -1,0 +1,56 @@
+ set zoneheight 16
+ displaymode 160A
+ set plotvalueonscreen on
+ set romsize 32k
+
+ incgraphic font.png 160A 
+ characterset font
+ alphachars '0123456789abcdefghijklmnopqrstuvwxyz>`?!/.,-_()[]&AB '
+
+ rem pallette 0 text
+  P0C1=$0F
+  P0C2=$0C
+  P0C3=$0A
+
+
+ BACKGRND=$00
+
+ dim bgColor  = var1
+ dim wait = var2
+ dim lives = var3
+ dim score = var4
+ 
+ bgColor = 0
+ wait = 0
+ lives = 0
+ score = 0
+
+
+_titleLoop
+ clearscreen
+ wait = wait + 1
+ if wait > 10 then wait = 0 : bgColor = bgColor + 1
+ if bgColor > 127 then bgColor = 0
+ BACKGRND = bgColor
+
+ plotchars 'u.a.p.' 0 68 5
+ if joy0fire0  || joy0fire1 then goto _initGame
+
+ drawscreen
+
+ goto _titleLoop
+
+_initGame
+ lives = 3
+ score = 0
+ BACKGRND=$00
+
+_gameLoop
+ 
+ clearscreen
+
+ plotchars 'game'  0 68 5
+ 
+ drawscreen
+
+ goto _gameLoop

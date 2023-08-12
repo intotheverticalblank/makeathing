@@ -1,0 +1,90 @@
+ set zoneheight 16
+ displaymode 160A
+ set plotvalueonscreen on
+ set romsize 32k
+ doublebuffer on 
+
+ incgraphic font.png 160A 
+ characterset font
+ alphachars '0123456789abcdefghijklmnopqrstuvwxyz>`?!/.,-_()[]&AB '
+
+ rem sprites
+ incgraphic images/player1.png 160A 0 1 3 2
+ incgraphic images/player2.png 160A 0 1 3 2
+ incgraphic images/player3.png 160A 0 1 3 2
+ incgraphic images/player4.png 160A 0 1 3 2
+
+ rem pallette 0 text
+  P0C1=$0F
+  P0C2=$0C
+  P0C3=$0A
+
+ rem pallette 1 player
+  P1C1 = $0D 
+  P1C2 = $08
+  P1C3 = $33 
+
+
+
+ BACKGRND=$00
+
+ dim bgColor  = var1
+ dim wait = var2
+ dim lives = var3
+ dim score = var4
+ dim playerX =var5
+ dim playerY = var6
+ dim playerAnimFrame = var7
+ dim playerAnimWait = var8
+
+ bgColor = 0
+ wait = 0
+ lives = 0
+ score = 0
+ playerY = 0
+ playerX = 0
+ playerAnimFrame = 0
+ playerAnimWait = 0
+
+_titleLoop
+ clearscreen
+ wait = wait + 1
+ if wait > 10 then wait = 0 : bgColor = bgColor + 1
+ if bgColor > 127 then bgColor = 0
+ BACKGRND = bgColor
+
+ plotchars 'u.a.p.'  0 68 5
+ if joy0fire0  || joy0fire1 then goto _initGame
+
+ drawscreen
+
+ goto _titleLoop
+
+_initGame
+ lives = 3
+ score = 0
+ BACKGRND=$00
+ playerX = 70
+ playerY = 90
+ playerAnimFrame = 0
+ playerAnimWait = 0
+
+
+_gameLoop
+
+ clearscreen
+
+ rem plotchars 'game'  0 68 5
+ plotsprite player1 1 playerX playerY playerAnimFrame
+ playerAnimWait = playerAnimWait +1
+ if playerAnimWait > 2 then  playerAnimFrame = playerAnimFrame + 1 : playerAnimWait = 0
+ if playerAnimFrame > 3 then playerAnimFrame = 0
+
+ if joy0left  then playerX=playerX - 1
+ if joy0right then playerX=playerX +  1
+ if joy0up  then playerY=playerY - 1
+ if joy0down then playerY=playerY +  1
+
+ doublebuffer flip 2
+
+ goto _gameLoop
