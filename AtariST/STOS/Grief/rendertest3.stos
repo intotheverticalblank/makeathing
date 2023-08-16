@@ -1,0 +1,73 @@
+rem *** STOS: The Game Creator
+rem ***
+rem *** Visual Studio Code Lanugage Extension
+rem *** Written by Neil Halliday
+rem ***
+rem ***
+rem *** Rendertest2 : main program file 
+
+//Move and animate formation across real screen
+//no key presses needed
+
+key(2)="default"
+key(3)="fload"+chr$(34)+"*.asc"+chr$(34)
+
+rem *** Error Handling ***
+on error goto @errortrap
+messages$="Messages: "
+
+
+rem *** start STOS Program ***
+rem ******************** version 3 - 9  sprites moved with dx and wait vBL *********************
+rem ******************** No more Sprite Move Command                       *********************
+curs off
+flash off:key off:hide:mode 0
+
+reserve as screen 10: rem  needed for screen copy versions
+
+load "GRSPR.mbk",1
+XP=hunt(start(1) to start(1)+length(1),"PALT")
+XP=XP+4 : for I=0 to 15 : colour I,deek(I*2+XP) : next I
+
+cls
+update off
+for sctr=0 to 8 
+  sprite sctr+1,sctr*16,0,7
+next 
+
+sprx=0: rem the x location of te left most sprite
+
+dx=1
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+
+repeat
+
+for sctr=0 to 8 
+  sprite sctr+1,(sctr*16)+sprx,0,7
+next 
+
+sprx=sprx+dx
+if sprx >172 then dx=-1
+if sprx=0 then dx=1
+
+rem FPS
+inc fctr: rem inc the frame counter
+
+if timer >=50  then inc se:timer=0
+if se>5 then fps=fctr/se: t$=str$(fps)+ "FPS" + chr$(0):rem fps=number of frames / number of seconds = fps.  
+locate 30, 1:print t$
+
+update 
+wait VBL 
+until fctr=200
+inverse on:pen 2: locate 1,22:print "press a key"
+wait key
+
+@errortrap
+default
+print "output: ";messages$
+print "error number";ERRN 
+print "line number";ERRL

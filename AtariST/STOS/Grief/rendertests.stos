@@ -1,0 +1,338 @@
+rem *** STOS: The Game Creator
+rem ***
+rem *** Visual Studio Code Lanugage Extension
+rem *** Written by Neil Halliday
+rem ***
+rem ***
+rem *** grief3.stos : main program file 
+
+//Move and animate formation across real screen
+//no key presses needed
+
+key(2)="default"
+key(3)="fload"+chr$(34)+"*.asc"+chr$(34)
+
+rem *** Error Handling ***
+on error goto @errortrap
+messages$="Messages: "
+
+
+rem *** start STOS Program ***
+rem ******************** version 1 - use stos sprites in 9 columns *********************
+curs off
+flash off:key off:hide:mode 0
+
+reserve as screen 10: rem  needed for screen copy versions
+
+load "GRSPR.mbk",1
+XP=hunt(start(1) to start(1)+length(1),"PALT")
+XP=XP+4 : for I=0 to 15 : colour I,deek(I*2+XP) : next I
+
+goto @version5
+
+for sctr=0 to 8 
+  sprite sctr+1,sctr*16,0,7
+next 
+
+for sctr=1 to 9 
+  move x sctr,"(1,1,132)(1,-1,132)L" 
+next 
+
+move on 
+
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+repeat
+
+rem FPS
+inc fctr: rem inc the fram counter
+
+rem if 4 second has elapsed then let se be the number of seconds elapsed
+if timer > 200 then se=timer/50 : fps=fctr/se: rem fps=number of frames / number of seconds = fps.  
+
+locate 1,16:print "9 tall STOS sprites in a row"
+locate 1,17:print "using the move on command"
+locate 1,18: print "fps: ";fps;
+locate 1,19:print "frame ctr ";fctr
+locate 1,20:print "timer ";timer
+locate 1,21:print "ctr ";ctr
+inc ctr
+
+until ctr=5
+inverse on:pen 2: locate 1,22:print "press a key"
+wait key
+
+
+rem ******************** version 2 ********************
+rem sprites with update off and wait vBL
+cls
+move off
+update off
+for sctr=0 to 8 
+  sprite sctr+1,sctr*16,0,7
+next 
+
+for sctr=1 to 9 
+  move x sctr,"(1,1,132)(1,-1,132)L" 
+next 
+move on
+ctr=0
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+repeat
+
+rem FPS
+inc fctr: rem inc the fram counter
+
+rem if 4 second has elapsed then let se be the number of seconds elapsed
+if timer > 200 then se=timer/50 : fps=fctr/se: rem fps=number of frames / number of seconds = fps.  
+
+locate 1,16:print "9 tall STOS sprites in a row"
+locate 1,17:print "using the move but update in VBL"
+locate 1,18: print "fps: ";fps;
+locate 1,19:print "frame ctr ";fctr
+locate 1,20:print "timer ";timer
+inc ctr
+update
+wait VBL 
+until fctr=100
+move off
+inverse on:pen 2: locate 1,22:print "press a key"
+wait key
+rem ******************** version 3 ********************
+rem  sprites moved with dx and wait vBL
+cls
+update off
+for sctr=0 to 8 
+  sprite sctr+1,sctr*16,0,7
+next 
+
+
+sprx=0: rem the x location of te left most sprite
+dx=1
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+repeat
+
+rem FPS
+inc fctr: rem inc the fram counter
+
+rem if 4 second has elapsed then let se be the number of seconds elapsed
+if timer > 200 then se=timer/50 : fps=fctr/se: rem fps=number of frames / number of seconds = fps.  
+
+
+for sctr=0 to 8 
+  sprite sctr+1,(sctr*16)+sprx,0,7
+next 
+
+sprx=sprx+dx
+if sprx >172 then dx=-1
+if sprx=0 then dx=1
+
+locate 1,16:print "9 tall STOS sprites in a row"
+locate 1,17:print "using dx but update in VBL"
+locate 1,18: print "fps: ";fps;
+locate 1,19:print "frame ctr ";fctr
+locate 1,20:print "timer ";timer
+locate 1,21:print "ctr ";ctr
+inc ctr
+update 
+wait VBL 
+until ctr=200
+inverse on:pen 2: locate 1,22:print "press a key"
+wait key
+
+
+rem ******************** version 4 ********************
+rem 16px offset movement
+rem 1. Copy 9 sprites to screen at 16px offset
+rem turn autoback off
+rem do 16 px offset version
+//update off
+//move off
+
+rem *** copy formation to screen 10 
+rem *** at 16px offset
+
+for sctr=0 to 8 
+  sprite sctr+1,sctr*16,0,7
+next  
+
+wait key
+screen copy physic,0,0,160,30 to 10,16,0
+sprite off:rem turns off all sprites
+rem do not need a separte sprite background. 
+rem this adds speed
+auto back off
+xoff=0
+ctr=0
+dx=2
+x1=0
+y1=0
+x2=320 
+y2=30
+xend=160: rem 320 - (144+16)  The screem width minus the formation length + offset
+screen copy 10,16-xoff,y1,160-xoff,y2 to logic,x1,0
+screen swap
+wait key
+
+cls
+logic=back
+
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+
+repeat
+
+rem the x1 and x2 in cls have to be 0 or 16 multiples
+x1c=((x1-dx)/16)
+x2c=x1c+160
+cls logic,0,x1c,0 to x2c,30
+//cls logic,0,0,0 to 320,30
+xoff=x1 MOD 16
+screen copy 10,16-xoff,y1,x1+160,y2 to logic,x1,0
+x1=x1+dx
+if x1=0 then dx=2
+if x1=xend then dx=-2
+
+rem FPS
+inc fctr: rem inc the fram counter
+
+rem if 4 second has elapsed then let se be the number of seconds elapsed
+if timer > 200 then se=timer/50 : fps=fctr/se: rem fps=number of frames / number of seconds = fps.  
+
+
+inverse off:pen 2
+locate 1,12: print "x1c ";x1c
+locate 1,13: print "x at multiples of 16 or 0, "
+locate 1,14: print "we copy from 10 at pixel 16"
+locate 1,15: print "for any other x we copy from"
+locate 1,16: print "16 -(x mod 16)"
+locate 1,17: print "x1=";x1
+locate 1,18: print "x2=";x2
+locate 1,20:print "Move CTR ";ctr
+locate 1,21: print "fps:     " : rem not clearingwhole screen so clear first
+locate 1,21: print "fps:";fps
+
+inc ctr
+screen swap:wait vbl
+until ctr=200
+
+locate 1,22: print "press a key"
+wait key
+
+
+@version5
+rem ******************** version 5 ********************
+rem copy peiate 4 to an array of strimgs at 0,1,2,4,8,16
+rem 1. Copy 9 versions of it to the screen and use the one needed to display
+rem turn autoback off
+rem turn synco off
+rem do 16 px offset version
+//update off
+//move off
+
+rem *** copy formation to screen 10 
+rem *** at 16px offset
+
+rem version  
+rem array of formations at 16
+
+rem version  
+rem array of individual images 
+rem basically our own pre-roll
+
+
+dim fm$(16):rem store the screen parts as an array
+locate 1,13: print "Creatiing pre-shifted spritesrun" 
+
+for x=0 to 15 
+  cls
+  sprite 1,x,0,7
+  put sprite 1 :wait VBL:sprite off
+  fm$(x)=screen$(logic,0,0 to 32,32) 
+  locate 1,14: print "  " 
+  locate 1,15: print "x ";x
+next x
+
+locate 1,15: print "Press a Key"
+wait key
+
+
+rem do not need a separte sprite background. 
+rem this adds speed
+auto back off
+cls
+logic=back
+
+xoff=0
+ctr=0
+dx=2
+x1=0
+y1=0
+xend=160: rem 320 - (144+16)  The screem width minus the formation length + offset
+
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+
+repeat
+
+rem the x1 and x2 in cls have to be 0 or 16 multiples
+//x1c=0
+//x2c=320
+//cls logic,0,x1c,0 to x2c,32
+cls logic 
+
+//loop through each of 9 columns
+for ctr=0 to 8
+x=(ctr*16)+x1
+xoff=x MOD 16 : rem which array value to show
+screen$(logic,x,0)=fm$(xoff)
+next ctr
+
+//end loop
+
+x1=x1+dx
+if x1=0 then dx=2
+if x1=xend then dx=-2
+
+rem FPS
+inc fctr: rem inc the frame counter
+
+rem if 4 second has elapsed then let se be the number of seconds elapsed
+if timer >=50  then inc se:timer=0
+//if secs>=5 then fps=vbctr/secs:secs=0:vbctr=0:t$=str$(fps)+ "FPS" + chr$(0)
+if se>5 then fps=fctr/se: rem fps=number of frames / number of seconds = fps.  
+
+
+inverse off:pen 2
+locate 1,14:print "x1 (spr1te x position) ";x1
+locate 1,15:print "xoff (spr1te frame) ";xoff
+locate 1,16:print "Move CTR ";ctr
+locate 1,17:print "Timer ";timer
+locate 1,18:print "se (timer/50) ";se
+locate 1,19:print "fctr (frame counter) ";fctr
+locate 1,20: print "fps (fctr/se):";fps
+
+
+inc ctr
+screen swap:wait vbl
+until ctr=200
+
+locate 1,22: print "press a key"
+wait key
+@errortrap
+default
+print "output: ";messages$
+print "error number";ERRN 
+print "line number";ERRL

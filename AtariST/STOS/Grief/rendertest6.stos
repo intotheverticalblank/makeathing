@@ -1,0 +1,74 @@
+rem *** STOS: The Game Creator
+rem ***
+rem *** Visual Studio Code Lanugage Extension
+rem *** Written by Neil Halliday
+rem ***
+rem ***
+rem *** render6.stos
+
+rem ******************** version 6 ********************
+rem use missingLink bobs
+key(2)="default"
+key(3)="fload"+chr$(34)+"*.asc"+chr$(34)
+
+rem *** Error Handling ***
+on error goto @errortrap
+messages$="Messages: "
+set hertz 50
+key off : curs off : click off : hide : auto back off : synchro off
+mode 0 
+
+dim XBOB(9),YBOB(9),SBOB(9),IBOB(9), DXBOB(9), DYBOB(9), ABOB(9): rem Abob controls sprite image animation on and off
+
+for ctr=0 to 8
+ibob(ctr)=6:Xbob(ctr)=ctr*16:Ybob(ctr)=0: SBOB(ctr)=1 : DXBOB(ctr)=2: DYBOB(ctr)=0: ABOB(ctr)=0: 
+next 
+
+load "bobspr.MBK",5
+P=palt(start(5)) : rem get pallet from bob bank 5
+s5=start(5)
+
+VIMAGE=varptr(IBOB(0))
+VXBOB=varptr(XBOB(0))
+VYBOB=varptr(YBOB(0))
+VDXBOB=varptr(DXBOB(0))
+VSTATUS=varptr(SBOB(0))
+xend=160: rem 320 - (144+16)  The screem width minus the formation length + offset
+
+
+rem *** fps counter vars
+fctr=0 : rem number of frames counted
+timer=0
+fps=0
+se=0: rem seconds elapsed
+t$="0.0FPS" 
+rem ****
+
+repeat
+wipe logic
+many bob logic,s5,VIMAGE,VXBOB,VYBOB,VSTATUS,0,0,9,0
+
+many add VXBOB,VDXBOB,9,0,319
+
+if XBOB(0)=0 then dx=2: for ctr=0 to 8:DXBOB(ctr)=dx:next
+if XBOB(0)=xend then dx=-2:for ctr=0 to 8:DXBOB(ctr)=dx:next
+
+
+rem FPS
+inc fctr: rem inc the frame counter
+
+rem if 4 second has elapsed then let se be the number of seconds elapsed
+if timer >=50  then inc se:timer=0
+if se>5 then fps=fctr/se: t$=str$(fps)+ "FPS" + chr$(0)rem fps=number of frames / number of seconds = fps.  
+text logic,0,varptr(t$),30,1
+
+screen swap:wait vbl
+until fctr=400
+
+locate 1,22: print "press a key"
+wait key
+@errortrap
+default
+print "output: ";messages$
+print "error number";ERRN 
+print "line number";ERRL
